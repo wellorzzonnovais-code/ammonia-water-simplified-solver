@@ -1,0 +1,16 @@
+Foco: desenvolvimento de modelo de simulação de sistema de refrigeração por absorção
+
+- O que é um sistema de refrigeração por absorção
+	- Como funciona?
+	- Quais combinações binárias são possíveis?
+	- Quantos efeitos pode ter?
+	
+- Quais modelos de sistema de refrigeração já foram desenvolvidos?
+	- Quais tiveram sucesso?
+	- Quais as principais limitações?
+- Qual a importância de ter modelo para Regime Permanente?
+- Qual a importância de ter Regime transiente?
+- Quais linguagens de programação são mais comuns para modelos de sistema de refrigeração, seja por absorção ou outros?
+	- Por que usar a linguagem Python?
+	- Qual a importância de software de código aberto?
+
