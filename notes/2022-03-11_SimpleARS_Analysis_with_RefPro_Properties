@@ -1,0 +1,6 @@
+How I will find point B.2? I haven't the composition quality in Refprop when locking temperature and pressure.
+
+To do:
+- How to find step B.1 (Qu_3)?
+- Redo the code to use Qu_3 instead os Temp_3
+

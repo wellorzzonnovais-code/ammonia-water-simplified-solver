@@ -26,14 +26,27 @@ Log
 Version 0.0.1
 --
 Introduced input data the simple code, operational conditions and pressure equality.
-It was created based on sheet "Simple Cycle Stepsv2", but some indications of changes were made to create the verison 0.0.2.
+Created based on sheet "Simple Cycle Stepsv2", but some indications of changes were made to create the verison 0.0.2.
 
 TO DO:
     - Check Thermodynamic Properties with RefProp v9.0;
     - Recreate program to accomplish new model in file "Simple Cycle Stepsv3";
     - Introduce csv file from RefProp to be an input to this software.
+--------------------------------------
+
 
 --------------------------------------
+Version 0.0.2
+--
+
+Created based on sheet "Simple Cycle Stepsv3";
+Solving methodology checked with tables from RefProp v9.0 (Specified State Points (variable composition);
+
+TO DO:
+    - Introduce csv file from RefProp to be an input to this software.
+--------------------------------------
+
+
 """
 
 import modules.mass_and_energy_balance as meb
@@ -79,12 +92,12 @@ Temp_6 = 263.15 #[K] - Temperature in evaporator outlet or absorber inlet
 Q_eva = 5000 #[W] - Cooling load in evaporator
 eff_p = 0.85 # - Thermodynamic pump efficiency
 
-x_1 = x_2 = 0.43 # - Ammonia mass fraction in absorber outlet, pump and generator inlet
+x_1 = x_2 = 0.35 # - Ammonia mass fraction in absorber outlet, pump and generator inlet
 x_3 = x_4 = x_5 = x_6 = 0.97 # - Ammonia mass fraction in generator outlet, condenser, EV1, evaporator and absorber inlet
 Qu_1 = 0 # - Vapor quality in generator high outlet or condenser inlet
 Qu_3 = 1 # - Vapor quality in absorber outlet or pump inlet
 Qu_4 = 0 # - Vapor quality in condenser outlet or pump inlet
-Qu_6 = 0.80294 # - Vapor quality in evaporator outlet or absorber inlet
+Qu_6 = 0.9 # - Vapor quality in evaporator outlet or absorber inlet
 Qu_7 = 0 # - Vapor quality in generator outlet or EV2 inlet
 
 
