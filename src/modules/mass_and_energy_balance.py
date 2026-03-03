@@ -41,11 +41,11 @@ def m_ponto_calc_eva(Q_eva,h_inlet,h_outlet):
 
 
 def m_ponto_low_outlet_calc_gen(m_ponto_high_outlet, x_inlet, x_high_outlet, x_low_outlet):
-    # (remembering)
-    # m_ponto_high_outlet = m_ponto_6
-    # x_1 = x_inlet
-    # x_high_outlet = x_6
-    # x_low_outlet = x_8
+    # (remembering for generator [or absorver])
+    # m_ponto_high_outlet = m_ponto_3 [or m_ponto_6]
+    # x_2 [or x_1] = x_inlet
+    # x_high_outlet = x_3 [or x_6]
+    # x_low_outlet = x_7 [or x_8]
 
     # (mass and energy balance at generator)
     # m_ponto_inlet = m_ponto_high_outlet + m_ponto_low_outlet # mass balance
