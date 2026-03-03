@@ -1,0 +1,9 @@
+14: ammonia/water 0.48-0.52: Specified state points (42,/58,)
+
+Mass Frac.	Mass Frac.	Temperature	Pressure	Density	Enthalpy	Entropy	Quality
+(ammonia)	(water)	(K)	(Pa)	(kg/m^3)	(J/kg)	(J/kg-K)	(kg/kg)
+							
+0,42000	0,58000	307,69	290710,	843,12	52230,	929,98	0,00000
+0,42000	0,58000	307,80	1555400,	843,51	53728,	929,98	Subcooled
+
+
