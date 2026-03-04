@@ -38,10 +38,25 @@ Refined the comments and cleaned the code.
 
 TO DO:
     - Develop heat loss in devices and tubes, maybe having a point on each devices inlet(s) or outlet(s).
+    
+    
+--------------------------------------
+Version 0.0.3
+--
+Substitute loop to define solutions of line 7 to "fsolve".
+
+TO DO:
+    - Develop heat loss in devices and tubes, maybe having a point on each devices inlet(s) or outlet(s).
+    - Review problem with indicating Mixture Quality
+    - Clean calculations at lines 3 and 5
+    - Create a column with mixture phase (think about number or quality as number and string)
 
 --------------------------------------
 """
-
+# ==========================================================================
+# RefProp Latest Documentation (v10) website:
+# https://refprop-docs.readthedocs.io/en/latest/
+# ==========================================================================
 
 # ==========================================================================
 # Configuring RefProp v10 - from
@@ -78,7 +93,7 @@ MASS_BASE_SI = RP.GETENUMdll(0, "MASS BASE SI").iEnum
 # Calling my own library of equations - Zon
 # ==========================================================================
 
-import mass_and_energy_balance as meb
+import modules.mass_and_energy_balance as meb
 
 
 # ==========================================================================
@@ -99,7 +114,7 @@ import mass_and_energy_balance as meb
 x_1 = x_2 = 0.42 # [-]
 
 # Ammonia mass fraction in generator outlet, condenser, EV1, evaporator and absorber inlet
-x_3 = x_4 = x_5 = x_6 = 0.9999999 # [-]
+x_3 = x_4 = x_5 = x_6 = 0.98 # [-]
 
 # Ammonia mass fraction in generator low outlet, EV2 inlet and absorber inlet (applied within calculation)
 # x_7 = x_8 # [-]
@@ -264,6 +279,13 @@ assert(ocalc_3.ierr == 0)
 Qu_3, h_3, s_3 = ocalc_3.Output[0:3]
 print("Qu_3 = " + "{:.4g}".format(Qu_3) + "; h_3 = " + "{:.4g}".format(h_3) + "; s_3 = " + "{:.4g}".format(s_3))
 
+print(ocalc_3.q)
+
+ocalc_3a = RP.REFPROPdll("Ammonia * Water","PT","PHASE",MASS_BASE_SI,1,0,P_3,Temp_3,[x_3, 1-x_3])
+print(ocalc_3a.hUnits)
+print()
+
+
 # Add a list or dictionary of point properties
 # (To be implemented)
 # ThermoProperties_3 = [Qu_3, h_3, s_3, ..._3]
@@ -291,9 +313,11 @@ h_5 = h_4
 
 # RefProp properties at line 5, based on P_5, h_5 and x_5.
 ocalc_5 = RP.REFPROPdll("Ammonia * Water","PH","T;Qmass;S",MASS_BASE_SI,1,0,P_5,h_5,[x_5, 1-x_5])
+# print(ocalc_5.herr)
 assert(ocalc_5.ierr == 0)
 Temp_5, Qu_5, s_5 = ocalc_5.Output[0:3]
 print("Temp_5 = " + "{:.4g}".format(Temp_5) + "; Qu_5 = " + "{:.4g}".format(Qu_5) + "; s_5 = " + "{:.4g}".format(s_5))
+print(ocalc_5.q)
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -309,24 +333,39 @@ print("Step " + str(step) + ":")
 
 
 # RefProp properties at line 7, based on P_7, Q_7 and Temp_7. RefProp does not allow to use those three properties as input, so we need to run a loop instance.
-x_7_guess = 0
-guess_fraction = 0.0001
-i = 1
-limit_iterations = 1/guess_fraction
-while i <= limit_iterations:
+
+def f(x_7_guess):
     ocalc_7 = RP.REFPROPdll("Ammonia * Water","PQ","T",MASS_BASE_SI,1,0,P_7,Qu_7,[x_7_guess, 1-x_7_guess])
     assert(ocalc_7.ierr == 0)
     Temp_7_calc, = ocalc_7.Output[0:1]
-    Temp_diff = Temp_7_calc - Temp_3 # We are trying to reach Temp_7 == Temp_3
-    if Temp_diff <= 0.0001:
-        x_7 = x_7_guess
-        break
-    else:
-        i += 1
-        x_7_guess += guess_fraction
-        # print(x_7_guess)
+    f1 = Temp_7_calc - Temp_3 # We are trying to reach Temp_7 == Temp_3
+    return [f1]
 
-# print("\n" + "{:.4g}".format(x_7))
+# print(f(0.25))
+from scipy.optimize import fsolve
+x_7 = float(fsolve(f,x_2)[0])
+# x_7 = float(x[0])
+# print(x_7)
+    
+### Solving without fsolve (slow and not precise)
+# x_7_guess = 0
+# guess_fraction = 0.0001
+# i = 1
+# limit_iterations = 1/guess_fraction
+# while i <= limit_iterations:
+#     ocalc_7 = RP.REFPROPdll("Ammonia * Water","PQ","T",MASS_BASE_SI,1,0,P_7,Qu_7,[x_7_guess, 1-x_7_guess])
+#     assert(ocalc_7.ierr == 0)
+#     Temp_7_calc, = ocalc_7.Output[0:1]
+#     Temp_diff = Temp_7_calc - Temp_3 # We are trying to reach Temp_7 == Temp_3
+#     if Temp_diff <= 0.0001:
+#         x_7 = x_7_guess
+#         break
+#     else:
+#         i += 1
+#         x_7_guess += guess_fraction
+#         # print(x_7_guess)
+
+# print("\n" + "{:.9g}".format(x_7))
 
 # RefProp properties at line 7, based on P_7, Q_7 and x_7 (based on Temp_7).
 ocalc_7 = RP.REFPROPdll("Ammonia * Water","PQ","T;H;S",MASS_BASE_SI,1,0,P_7,Qu_7,[x_7, 1-x_7])
@@ -523,7 +562,7 @@ table = [
     ['Point', 'Pressure', 'Temperature', 'Ammonia mass \nfraction', 'Vapor \nquality', 'Specific \nenthalpy', 'Specific \nentropy', 'Mass \nflow rate'],
     ['1', '%.4g ' % P_1, '%.4g' % Temp_1, '%.4g' % x_1, '%.4g' % Qu_1, '%.4g' % h_1, '%.4g' % s_1, '%.4g' % m_ponto_1],
     ['2', '%.4g ' % P_2, '%.4g' % Temp_2, '%.4g' % x_2, '%.4g' % Qu_2, '%.4g' % h_2, '%.4g' % s_2, '%.4g' % m_ponto_2],
-    ['3', '%.4g ' % P_3, '%.4g' % Temp_3, '%.4g' % x_3, '%.4g' % Qu_3, '%.4g' % h_3, '%.4g' % s_3, '%.4g' % m_ponto_3],
+    ['3', '%.9g ' % P_3, '%.4g' % Temp_3, '%.4g' % x_3, '%.4g' % Qu_3, '%.4g' % h_3, '%.4g' % s_3, '%.4g' % m_ponto_3],
     ['4', '%.4g ' % P_4, '%.4g' % Temp_4, '%.4g' % x_4, '%.4g' % Qu_4, '%.4g' % h_4, '%.4g' % s_4, '%.4g' % m_ponto_4],
     ['5', '%.4g ' % P_5, '%.4g' % Temp_5, '%.4g' % x_5, '%.4g' % Qu_5, '%.4g' % h_5, '%.4g' % s_5, '%.4g' % m_ponto_5],
     ['6', '%.4g ' % P_6, '%.4g' % Temp_6, '%.4g' % x_6, '%.4g' % Qu_6, '%.4g' % h_6, '%.4g' % s_6, '%.4g' % m_ponto_6],
@@ -531,3 +570,19 @@ table = [
     ['8', '%.4g ' % P_8, '%.4g' % Temp_8, '%.4g' % x_8, '%.4g' % Qu_8, '%.4g' % h_8, '%.4g' % s_8, '%.4g' % m_ponto_8],
 ]
 print(tabulate(table, headers='firstrow')) #, tablefmt='grid'))
+
+
+
+
+
+
+
+
+
+
+
+# Teste
+# ocalc_3 = RP.REFPROPdll("Ammonia * Water","PT","Qmass;H;S",MASS_BASE_SI,1,0,P_3,Temp_3,[x_3, 1-x_3])
+# assert(ocalc_3.ierr == 0)
+# Qu_3, h_3, s_3 = ocalc_3.Output[0:3]
+# print("Qu_3 = " + "{:.4g}".format(Qu_3) + "; h_3 = " + "{:.4g}".format(h_3) + "; s_3 = " + "{:.4g}".format(s_3))
