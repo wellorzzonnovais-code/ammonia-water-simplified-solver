@@ -43,13 +43,24 @@ TO DO:
 --------------------------------------
 Version 0.0.3
 --
-Substitute loop to define solutions of line 7 to "fsolve".
+Substituted loop to define solutions of line 7 to "fsolve".
 
 TO DO:
     - Develop heat loss in devices and tubes, maybe having a point on each devices inlet(s) or outlet(s).
     - Review problem with indicating Mixture Quality
     - Clean calculations at lines 3 and 5
     - Create a column with mixture phase (think about number or quality as number and string)
+    
+    
+--------------------------------------
+Version 0.0.4
+--
+Reviewed problem with indicating Mixture Quality
+Created a column with mixture phase (think about number or quality as number and string)
+Cleaned calculations at lines 3 and 5
+
+TO DO:
+    - Develop heat loss in devices and tubes, maybe having a point on each devices inlet(s) or outlet(s).
 
 --------------------------------------
 """
@@ -111,10 +122,10 @@ import modules.mass_and_energy_balance as meb
 
 # ===== Mass fraction equality =====
 # Ammonia mass fraction in absorber outlet, pump and generator inlet
-x_1 = x_2 = 0.42 # [-]
+x_1 = x_2 = 0.43 # [-]
 
 # Ammonia mass fraction in generator outlet, condenser, EV1, evaporator and absorber inlet
-x_3 = x_4 = x_5 = x_6 = 0.98 # [-]
+x_3 = x_4 = x_5 = x_6 = 1 # [-]
 
 # Ammonia mass fraction in generator low outlet, EV2 inlet and absorber inlet (applied within calculation)
 # x_7 = x_8 # [-]
@@ -230,7 +241,10 @@ print("Step " + str(step) + ":")
 ocalc_4 = RP.REFPROPdll("Ammonia * Water","TQ","P;H;S",MASS_BASE_SI,1,0,Temp_4,Qu_4,[x_4, 1-x_4])
 assert(ocalc_4.ierr == 0)
 P_4, h_4, s_4 = ocalc_4.Output[0:3]
-print("P_4 = " + "{:.4g}".format(P_4) + "; h_4 = " + "{:.4g}".format(h_4) + "; s_4 = " + "{:.4g}".format(s_4))
+
+ocalc_4a = RP.REFPROPdll("Ammonia * Water","TQ","PHASE",MASS_BASE_SI,1,0,Temp_4,Qu_4,[x_4, 1-x_4])
+Phase_4 = ocalc_4a.hUnits
+print("P_4 = " + "{:.4g}".format(P_4) + "; h_4 = " + "{:.4g}".format(h_4) + "; s_4 = " + "{:.4g}".format(s_4) + "; Phase_4 = " + Phase_4)
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -241,7 +255,10 @@ print("P_4 = " + "{:.4g}".format(P_4) + "; h_4 = " + "{:.4g}".format(h_4) + "; s
 ocalc_6 = RP.REFPROPdll("Ammonia * Water","TQ","P;H;S",MASS_BASE_SI,1,0,Temp_6,Qu_6,[x_6, 1-x_6])
 assert(ocalc_6.ierr == 0)
 P_6, h_6, s_6 = ocalc_6.Output[0:3]
-print("P_6 = " + "{:.4g}".format(P_6) + "; h_6 = " + "{:.4g}".format(h_6) + "; s_6 = " + "{:.4g}".format(s_6))
+
+ocalc_6a = RP.REFPROPdll("Ammonia * Water","TQ","PHASE",MASS_BASE_SI,1,0,Temp_6,Qu_6,[x_6, 1-x_6])
+Phase_6 = ocalc_6a.hUnits
+print("P_6 = " + "{:.4g}".format(P_6) + "; h_6 = " + "{:.4g}".format(h_6) + "; s_6 = " + "{:.4g}".format(s_6) + "; Phase_6 = " + Phase_6)
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -274,17 +291,16 @@ step += 1
 print("Step " + str(step) + ":")
  
 # RefProp properties at line 3, based on P_3, Temp_3 and x_3.
-ocalc_3 = RP.REFPROPdll("Ammonia * Water","PT","Qmass;H;S",MASS_BASE_SI,1,0,P_3,Temp_3,[x_3, 1-x_3])
+ocalc_3 = RP.REFPROPdll("Ammonia * Water","PT","H;S",MASS_BASE_SI,1,0,P_3,Temp_3,[x_3, 1-x_3])
 assert(ocalc_3.ierr == 0)
-Qu_3, h_3, s_3 = ocalc_3.Output[0:3]
-print("Qu_3 = " + "{:.4g}".format(Qu_3) + "; h_3 = " + "{:.4g}".format(h_3) + "; s_3 = " + "{:.4g}".format(s_3))
-
-print(ocalc_3.q)
+h_3, s_3 = ocalc_3.Output[0:2]
+Qu_3 = ocalc_3.q
 
 ocalc_3a = RP.REFPROPdll("Ammonia * Water","PT","PHASE",MASS_BASE_SI,1,0,P_3,Temp_3,[x_3, 1-x_3])
-print(ocalc_3a.hUnits)
-print()
+Phase_3 = ocalc_3a.hUnits
+print("Qu_3 = " + "{:.4g}".format(Qu_3) + "; h_3 = " + "{:.4g}".format(h_3) + "; s_3 = " + "{:.4g}".format(s_3) + "; Phase_3 = " + Phase_3)
 
+print()
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -295,7 +311,10 @@ print()
 ocalc_1 = RP.REFPROPdll("Ammonia * Water","PQ","T;H;S",MASS_BASE_SI,1,0,P_1,Qu_1,[x_1, 1-x_1])
 assert(ocalc_1.ierr == 0)
 Temp_1, h_1, s_1 = ocalc_1.Output[0:3]
-print("Temp_1 = " + "{:.4g}".format(Temp_1) + "; h_1 = " + "{:.4g}".format(h_1) + "; s_1 = " + "{:.4g}".format(s_1))
+
+ocalc_1a = RP.REFPROPdll("Ammonia * Water","PQ","PHASE",MASS_BASE_SI,1,0,P_1,Qu_1,[x_1, 1-x_1])
+Phase_1 = ocalc_1a.hUnits
+print("Temp_1 = " + "{:.4g}".format(Temp_1) + "; h_1 = " + "{:.4g}".format(h_1) + "; s_1 = " + "{:.4g}".format(s_1) + "; Phase_1 = " + Phase_1)
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -312,12 +331,15 @@ print("Step " + str(step2) + ":")
 h_5 = h_4
 
 # RefProp properties at line 5, based on P_5, h_5 and x_5.
-ocalc_5 = RP.REFPROPdll("Ammonia * Water","PH","T;Qmass;S",MASS_BASE_SI,1,0,P_5,h_5,[x_5, 1-x_5])
+ocalc_5 = RP.REFPROPdll("Ammonia * Water","PH","T;S",MASS_BASE_SI,1,0,P_5,h_5,[x_5, 1-x_5])
 # print(ocalc_5.herr)
 assert(ocalc_5.ierr == 0)
-Temp_5, Qu_5, s_5 = ocalc_5.Output[0:3]
-print("Temp_5 = " + "{:.4g}".format(Temp_5) + "; Qu_5 = " + "{:.4g}".format(Qu_5) + "; s_5 = " + "{:.4g}".format(s_5))
-print(ocalc_5.q)
+Temp_5, s_5 = ocalc_5.Output[0:2]
+Qu_5 = ocalc_5.q
+
+ocalc_5a = RP.REFPROPdll("Ammonia * Water","PH","PHASE",MASS_BASE_SI,1,0,P_5,h_5,[x_5, 1-x_5])
+Phase_5 = ocalc_5a.hUnits
+print("Temp_5 = " + "{:.4g}".format(Temp_5) + "; Qu_5 = " + "{:.4g}".format(Qu_5) + "; s_5 = " + "{:.4g}".format(s_5) + "; Phase_5 = " + Phase_5)
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -371,7 +393,10 @@ x_7 = float(fsolve(f,x_2)[0])
 ocalc_7 = RP.REFPROPdll("Ammonia * Water","PQ","T;H;S",MASS_BASE_SI,1,0,P_7,Qu_7,[x_7, 1-x_7])
 assert(ocalc_7.ierr == 0)
 Temp_7, h_7, s_7 = ocalc_7.Output[0:3]
-print("Temp_7 = " + "{:.4g}".format(Temp_7) + "; Qu_7 = " + "{:.4g}".format(Qu_7) + "; s_7 = " + "{:.4g}".format(s_7) + "; x_7 = " + "{:.4g}".format(x_7))
+
+ocalc_7a = RP.REFPROPdll("Ammonia * Water","PQ","PHASE",MASS_BASE_SI,1,0,P_7,Qu_7,[x_7, 1-x_7])
+Phase_7 = ocalc_7a.hUnits
+print("Temp_7 = " + "{:.4g}".format(Temp_7) + "; x_7 = " + "{:.4g}".format(x_7) + "; Qu_7 = " + "{:.4g}".format(Qu_7) + "; s_7 = " + "{:.4g}".format(s_7) + "; Phase_7 = " + Phase_7)
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -388,10 +413,14 @@ print("Step " + str(step) + ":")
 s_2 = s_1
 
 # RefProp properties at line 2, based on P_2, s_2 and x_2.
-ocalc_2 = RP.REFPROPdll("Ammonia * Water","PS","T;Qmass;H",MASS_BASE_SI,1,0,P_2,s_2,[x_2, 1-x_2])
+ocalc_2 = RP.REFPROPdll("Ammonia * Water","PS","T;H",MASS_BASE_SI,1,0,P_2,s_2,[x_2, 1-x_2])
 assert(ocalc_2.ierr == 0)
-Temp_2, Qu_2, h_2 = ocalc_2.Output[0:3]
-print("Temp_2 = " + "{:.4g}".format(Temp_2) + "; Qu_2 = " + "{:.4g}".format(Qu_2) + "; h_2 = " + "{:.4g}".format(h_2))
+Temp_2, h_2 = ocalc_2.Output[0:2]
+Qu_2 = ocalc_2.q
+
+ocalc_2a = RP.REFPROPdll("Ammonia * Water","PS","PHASE",MASS_BASE_SI,1,0,P_2,s_2,[x_2, 1-x_2])
+Phase_2 = ocalc_2a.hUnits
+print("Temp_2 = " + "{:.4g}".format(Temp_2) + "; Qu_2 = " + "{:.4g}".format(Qu_2) + "; h_2 = " + "{:.4g}".format(h_2) + "; Phase_2 = " + Phase_2)
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -410,10 +439,14 @@ h_8 = h_7
 
 
 # RefProp properties at line 8, based on P_8, h_8 and x_8.
-ocalc_8 = RP.REFPROPdll("Ammonia * Water","PH","T;Qmass;S",MASS_BASE_SI,1,0,P_8,h_8,[x_8, 1-x_8])
+ocalc_8 = RP.REFPROPdll("Ammonia * Water","PH","T;S",MASS_BASE_SI,1,0,P_8,h_8,[x_8, 1-x_8])
 assert(ocalc_8.ierr == 0)
-Temp_8, Qu_8, s_8 = ocalc_8.Output[0:3]
-print("Temp_8 = " + "{:.4g}".format(Temp_8) + "; Qu_8 = " + "{:.4g}".format(Qu_8) + "; s_8 = " + "{:.4g}".format(s_8))
+Temp_8, s_8 = ocalc_8.Output[0:2]
+Qu_8 = ocalc_8.q
+
+ocalc_8a = RP.REFPROPdll("Ammonia * Water","PH","PHASE",MASS_BASE_SI,1,0,P_8,h_8,[x_8, 1-x_8])
+Phase_8 = ocalc_8a.hUnits
+print("Temp_8 = " + "{:.4g}".format(Temp_8) + "; Qu_8 = " + "{:.4g}".format(Qu_8) + "; s_8 = " + "{:.4g}".format(s_8) + "; Phase_8 = " + Phase_8)
 
 # Add a list or dictionary of point properties
 # (To be implemented)
@@ -559,15 +592,15 @@ print()
 from tabulate import tabulate
 
 table = [
-    ['Point', 'Pressure', 'Temperature', 'Ammonia mass \nfraction', 'Vapor \nquality', 'Specific \nenthalpy', 'Specific \nentropy', 'Mass \nflow rate'],
-    ['1', '%.4g ' % P_1, '%.4g' % Temp_1, '%.4g' % x_1, '%.4g' % Qu_1, '%.4g' % h_1, '%.4g' % s_1, '%.4g' % m_ponto_1],
-    ['2', '%.4g ' % P_2, '%.4g' % Temp_2, '%.4g' % x_2, '%.4g' % Qu_2, '%.4g' % h_2, '%.4g' % s_2, '%.4g' % m_ponto_2],
-    ['3', '%.9g ' % P_3, '%.4g' % Temp_3, '%.4g' % x_3, '%.4g' % Qu_3, '%.4g' % h_3, '%.4g' % s_3, '%.4g' % m_ponto_3],
-    ['4', '%.4g ' % P_4, '%.4g' % Temp_4, '%.4g' % x_4, '%.4g' % Qu_4, '%.4g' % h_4, '%.4g' % s_4, '%.4g' % m_ponto_4],
-    ['5', '%.4g ' % P_5, '%.4g' % Temp_5, '%.4g' % x_5, '%.4g' % Qu_5, '%.4g' % h_5, '%.4g' % s_5, '%.4g' % m_ponto_5],
-    ['6', '%.4g ' % P_6, '%.4g' % Temp_6, '%.4g' % x_6, '%.4g' % Qu_6, '%.4g' % h_6, '%.4g' % s_6, '%.4g' % m_ponto_6],
-    ['7', '%.4g ' % P_7, '%.4g' % Temp_7, '%.4g' % x_7, '%.4g' % Qu_7, '%.4g' % h_7, '%.4g' % s_7, '%.4g' % m_ponto_7],
-    ['8', '%.4g ' % P_8, '%.4g' % Temp_8, '%.4g' % x_8, '%.4g' % Qu_8, '%.4g' % h_8, '%.4g' % s_8, '%.4g' % m_ponto_8],
+    ['Point', 'Pressure', 'Temperature', 'Ammonia mass \nfraction', 'Vapor \nquality', 'Specific \nenthalpy', 'Specific \nentropy', 'Mass \nflow rate', 'Phase'],
+    ['1', '%.4g ' % P_1, '%.4g' % Temp_1, '%.4g' % x_1, '%.4g' % Qu_1, '%.4g' % h_1, '%.4g' % s_1, '%.4g' % m_ponto_1, Phase_1],
+    ['2', '%.4g ' % P_2, '%.4g' % Temp_2, '%.4g' % x_2, '%.4g' % Qu_2, '%.4g' % h_2, '%.4g' % s_2, '%.4g' % m_ponto_2, Phase_2],
+    ['3', '%.9g ' % P_3, '%.4g' % Temp_3, '%.4g' % x_3, '%.4g' % Qu_3, '%.4g' % h_3, '%.4g' % s_3, '%.4g' % m_ponto_3, Phase_3],
+    ['4', '%.4g ' % P_4, '%.4g' % Temp_4, '%.4g' % x_4, '%.4g' % Qu_4, '%.4g' % h_4, '%.4g' % s_4, '%.4g' % m_ponto_4, Phase_4],
+    ['5', '%.4g ' % P_5, '%.4g' % Temp_5, '%.4g' % x_5, '%.4g' % Qu_5, '%.4g' % h_5, '%.4g' % s_5, '%.4g' % m_ponto_5, Phase_5],
+    ['6', '%.4g ' % P_6, '%.4g' % Temp_6, '%.4g' % x_6, '%.4g' % Qu_6, '%.4g' % h_6, '%.4g' % s_6, '%.4g' % m_ponto_6, Phase_6],
+    ['7', '%.4g ' % P_7, '%.4g' % Temp_7, '%.4g' % x_7, '%.4g' % Qu_7, '%.4g' % h_7, '%.4g' % s_7, '%.4g' % m_ponto_7, Phase_7],
+    ['8', '%.4g ' % P_8, '%.4g' % Temp_8, '%.4g' % x_8, '%.4g' % Qu_8, '%.4g' % h_8, '%.4g' % s_8, '%.4g' % m_ponto_8, Phase_8],
 ]
 print(tabulate(table, headers='firstrow')) #, tablefmt='grid'))
 
